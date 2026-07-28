@@ -77,6 +77,8 @@ try {
     $app->useStoragePath('/tmp/storage');
     $app->instance('path.storage', '/tmp/storage');
 
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
 
