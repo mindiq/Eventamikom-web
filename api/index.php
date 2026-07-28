@@ -45,6 +45,15 @@ try {
     putenv('LOG_CHANNEL=stderr');
     $_ENV['LOG_CHANNEL'] = 'stderr';
 
+    putenv('APP_URL=https://eventamikom-web.vercel.app');
+    $_ENV['APP_URL'] = 'https://eventamikom-web.vercel.app';
+    putenv('SESSION_SECURE_COOKIE=true');
+    $_ENV['SESSION_SECURE_COOKIE'] = 'true';
+    if (!getenv('SESSION_DRIVER') && !isset($_ENV['SESSION_DRIVER'])) {
+        putenv('SESSION_DRIVER=cookie');
+        $_ENV['SESSION_DRIVER'] = 'cookie';
+    }
+
     // Fallback env variables if missing on Vercel Dashboard
     if (!getenv('APP_KEY') && !isset($_ENV['APP_KEY'])) {
         putenv('APP_KEY=base64:C0PUHAv+7Hdc1GRUL8gkB357PfI1xMof8uqzG0PLIXM=');
