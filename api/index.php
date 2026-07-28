@@ -7,6 +7,14 @@ error_reporting(E_ALL);
 putenv('APP_DEBUG=true');
 $_ENV['APP_DEBUG'] = 'true';
 
+if (isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'test-diag')) {
+    echo "<h1>PHP Version: " . PHP_VERSION . "</h1>";
+    echo "<h2>Loaded Extensions:</h2><pre>";
+    print_r(get_loaded_extensions());
+    echo "</pre>";
+    exit;
+}
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
@@ -34,6 +42,8 @@ try {
     putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
     putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
     putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
+    putenv('LOG_CHANNEL=stderr');
+    $_ENV['LOG_CHANNEL'] = 'stderr';
 
     // Fallback env variables if missing on Vercel Dashboard
     if (!getenv('APP_KEY') && !isset($_ENV['APP_KEY'])) {
@@ -62,9 +72,10 @@ try {
     require __DIR__ . '/../vendor/autoload.php';
 
     /** @var Application $app */
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    $app = require __DIR__ . '/../bootstrap/app.php';
 
     $app->useStoragePath('/tmp/storage');
+    $app->instance('path.storage', '/tmp/storage');
 
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
