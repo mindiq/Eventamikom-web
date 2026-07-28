@@ -56,13 +56,20 @@ class DashboardController extends Controller
 
         // Data Pertumbuhan Pengguna (User Growth)
         $userGrowthData = array_fill(0, 12, 0);
-        $usersByMonth = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+        $monthSelect = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql'
+            ? 'EXTRACT(MONTH FROM created_at) as month, COUNT(*) as total'
+            : 'MONTH(created_at) as month, COUNT(*) as total';
+
+        $usersByMonth = User::selectRaw($monthSelect)
             ->whereYear('created_at', date('Y'))
             ->groupBy('month')
             ->pluck('total', 'month');
 
         foreach ($usersByMonth as $monthNum => $total) {
-            $userGrowthData[$monthNum - 1] = $total;
+            $monthIdx = (int)$monthNum - 1;
+            if (isset($userGrowthData[$monthIdx])) {
+                $userGrowthData[$monthIdx] = $total;
+            }
         }
 
         if (array_sum($userGrowthData) < 15) {
@@ -72,13 +79,16 @@ class DashboardController extends Controller
         // Data Pertumbuhan Event (Event Growth)
         $eventGrowthData = array_fill(0, 12, 0);
         $eventsQuery = ($user->role !== 'admin' && $organizer) ? $organizer->events() : Event::query();
-        $eventsByMonth = (clone $eventsQuery)->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+        $eventsByMonth = (clone $eventsQuery)->selectRaw($monthSelect)
             ->whereYear('created_at', date('Y'))
             ->groupBy('month')
             ->pluck('total', 'month');
 
         foreach ($eventsByMonth as $monthNum => $total) {
-            $eventGrowthData[$monthNum - 1] = $total;
+            $monthIdx = (int)$monthNum - 1;
+            if (isset($eventGrowthData[$monthIdx])) {
+                $eventGrowthData[$monthIdx] = $total;
+            }
         }
 
         if (array_sum($eventGrowthData) < 6) {
