@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('organizers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('name');
+            $table->string('slug')->nullable();
+            $table->text('description')->nullable();
+            $table->string('logo_path')->nullable();
+            $table->string('status')->default('pending');
+            $table->boolean('is_verified')->default(false);
             $table->timestamps();
         });
     }
