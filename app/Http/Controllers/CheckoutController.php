@@ -110,6 +110,7 @@ class CheckoutController extends Controller
                 'order_id' => $transaction->order_id,
                 'gross_amount' => $transaction->total_price,
             ],
+            'enabled_payments' => ['gopay', 'qris', 'bank_transfer', 'bca_va', 'bni_va', 'bri_va', 'mandiri_va', 'shopeepay', 'cbm'],
             'expiry' => [
                 'start_time' => date("Y-m-d H:i:s O"),
                 'unit' => 'minute',
