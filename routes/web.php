@@ -16,6 +16,16 @@ use App\Http\Controllers\OrganizerRegistrationController;
 use App\Http\Controllers\Organizer\DashboardController as OrganizerDashboardController;
 use App\Http\Controllers\Admin\SuperadminController;
 
+Route::get('/fix-db', function () {
+    try {
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(50)");
+        return "SUCCESS: Database constraint users_role_check removed!";
+    } catch (\Throwable $e) {
+        return "ERROR: " . $e->getMessage();
+    }
+});
+
 // Rute Pendaftaran, Login & Dashboard Multi-Tenant Kepanitiaan/HIMA
 Route::get('/organizer/register', [OrganizerRegistrationController::class, 'showRegistrationForm'])->name('organizer.register');
 Route::post('/organizer/register', [OrganizerRegistrationController::class, 'register'])->name('organizer.register.post');

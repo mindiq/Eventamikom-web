@@ -68,11 +68,11 @@ class OrganizerRegistrationController extends Controller
 
         // 1. Buat Akun User untuk Organisasi
         try {
-            if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
-                \Illuminate\Support\Facades\DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
-                \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(50)");
-            }
-        } catch (\Throwable $e) {}
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(50)");
+        } catch (\Throwable $e) {
+            // Ignore if fails
+        }
 
         $user = User::create([
             'name' => $request->organization_name,
