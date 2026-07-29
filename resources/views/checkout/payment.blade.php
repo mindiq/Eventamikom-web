@@ -55,9 +55,8 @@
 
 @php
     $clientKey = env('MIDTRANS_CLIENT_KEY', 'Mid-client-XAUKQ0ohIJm9S4JM');
-    $snapClientKey = \Illuminate\Support\Str::startsWith($clientKey, 'SB-') ? $clientKey : 'SB-' . $clientKey;
 @endphp
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $snapClientKey }}"></script>
+<script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ $clientKey }}"></script>
 <script type="text/javascript">
     document.getElementById('pay-button').onclick = function () {
         const token = '{{ $transaction->snap_token }}';

@@ -91,17 +91,13 @@ class CheckoutController extends Controller
             return back()->with('error', 'Gagal memproses reservasi tiket: ' . $e->getMessage());
         }
 
-        // --- INTEGRASI RESMI SNAP MIDTRANS ---
+        // --- INTEGRASI RESMI PRODUCTION MIDTRANS ---
         $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
         $clientKey = env('MIDTRANS_CLIENT_KEY', base64_decode('TWlkLWNsaWVudC1YQVVLUTBvaElKbTlTNEpN'));
-        
-        // Midtrans Sandbox mensyaratkan prefix SB- pada ServerKey & ClientKey
-        $snapServerKey = \Illuminate\Support\Str::startsWith($serverKey, 'SB-') ? $serverKey : 'SB-' . $serverKey;
-        $snapClientKey = \Illuminate\Support\Str::startsWith($clientKey, 'SB-') ? $clientKey : 'SB-' . $clientKey;
 
-        \Midtrans\Config::$serverKey = $snapServerKey;
-        \Midtrans\Config::$clientKey = $snapClientKey;
-        \Midtrans\Config::$isProduction = false; // Mode Sandbox untuk UAS / Testing
+        \Midtrans\Config::$serverKey = $serverKey;
+        \Midtrans\Config::$clientKey = $clientKey;
+        \Midtrans\Config::$isProduction = true; // Mode Production resmi Midtrans
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
 
