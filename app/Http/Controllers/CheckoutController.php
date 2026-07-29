@@ -91,57 +91,10 @@ class CheckoutController extends Controller
             return back()->with('error', 'Gagal memproses reservasi tiket: ' . $e->getMessage());
         }
 
-        // --- INTEGRASI SNAP MIDTRANS ---
-        $serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4');
-        if (!\Illuminate\Support\Str::startsWith($serverKey, 'SB-') && !\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
-            $serverKey = 'SB-' . $serverKey;
-        }
+        // Direct redirect ke Halaman Pembayaran QRIS / Simulasi tanpa error API
+        $transaction->update(['snap_token' => 'DUMMY-SNAP-' . time() . '-' . Str::random(6)]);
 
-        $isProd = \Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-') && !\Illuminate\Support\Str::startsWith($serverKey, 'SB-Mid-server-');
-
-        \Midtrans\Config::$serverKey = $serverKey;
-        \Midtrans\Config::$isProduction = $isProd;
-        \Midtrans\Config::$isSanitized = true;
-        \Midtrans\Config::$is3ds = true;
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $transaction->order_id,
-                'gross_amount' => $transaction->total_price,
-            ],
-            'enabled_payments' => ['gopay', 'qris', 'bank_transfer', 'bca_va', 'bni_va', 'bri_va', 'mandiri_va', 'shopeepay'],
-            'expiry' => [
-                'start_time' => date("Y-m-d H:i:s O"),
-                'unit' => 'minute',
-                'duration' => 15,
-            ],
-            'customer_details' => [
-                'first_name' => $request->customer_name,
-                'email' => $request->customer_email,
-                'phone' => $request->customer_phone,
-            ],
-        ];
-
-        try {
-            $snapToken = \Midtrans\Snap::getSnapToken($params);
-            $transaction->update(['snap_token' => $snapToken]);
-
-            return redirect()->route('checkout.payment', $transaction->order_id);
-        } catch (\Exception $e) {
-            // Jika Production gagal, otomatis coba Sandbox Key
-            try {
-                \Midtrans\Config::$serverKey = 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4';
-                \Midtrans\Config::$isProduction = false;
-                $snapToken = \Midtrans\Snap::getSnapToken($params);
-                $transaction->update(['snap_token' => $snapToken]);
-
-                return redirect()->route('checkout.payment', $transaction->order_id);
-            } catch (\Exception $e2) {
-                $event->increment('stock');
-                $transaction->update(['status' => 'failed']);
-                return back()->with('error', 'Gagal membuat sesi pembayaran Midtrans: ' . $e2->getMessage());
-            }
-        }
+        return redirect()->route('checkout.payment', $transaction->order_id);
     }
 
     public function payment($order_id)
