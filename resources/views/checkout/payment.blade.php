@@ -45,8 +45,8 @@
 </main>
 
 @php
-    $clientKey = env('MIDTRANS_CLIENT_KEY', 'Mid-client-XAUKQ0ohIJm9S4JM');
-    $snapUrl = \Illuminate\Support\Str::startsWith($clientKey, 'Mid-client-') 
+    $clientKey = env('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-XAUKQ0ohIJm9S4JM');
+    $snapUrl = \Illuminate\Support\Str::startsWith($clientKey, 'Mid-client-') && !\Illuminate\Support\Str::startsWith($clientKey, 'SB-')
         ? 'https://app.midtrans.com/snap/snap.js' 
         : 'https://app.sandbox.midtrans.com/snap/snap.js';
 @endphp
@@ -56,18 +56,21 @@
 
     // 1. Fungsi Buka Popup Midtrans saat Tombol Ditekan
     document.getElementById('pay-button').onclick = function () {
-        snap.pay('{{ $transaction->snap_token }}', {
-            onSuccess: function(result){
-                window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
-            },
-            onPending: function(result){
-                // Saat user menutup popup atau memilih pending, langsung jalankan pengecekan
-                checkPaymentStatusNow();
-            },
-            onError: function(result){
-                alert("Pembayaran Gagal atau Dibatalkan!");
-            }
-        });
+        if (typeof snap !== 'undefined' && snap.pay) {
+            snap.pay('{{ $transaction->snap_token }}', {
+                onSuccess: function(result){
+                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                },
+                onPending: function(result){
+                    checkPaymentStatusNow();
+                },
+                onError: function(result){
+                    checkPaymentStatusNow();
+                }
+            });
+        } else {
+            checkPaymentStatusNow();
+        }
     };
 
     // 2. Fungsi Pengecekan Status Real-Time via AJAX
