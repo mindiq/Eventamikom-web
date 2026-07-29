@@ -128,15 +128,7 @@ class CheckoutController extends Controller
 
             return redirect()->route('checkout.payment', $transaction->order_id);
         } catch (\Exception $e) {
-            // Jika akun Midtrans 401 / belum aktif di Production / Sandbox Key beda, gunakan Mode Simulasi Pembayaran
-            if (str_contains($e->getMessage(), '401') || str_contains($e->getMessage(), 'unauthorized') || str_contains($e->getMessage(), 'ServerKey')) {
-                $simulatedToken = 'SIMULATED-TOKEN-' . time() . '-' . Str::random(6);
-                $transaction->update(['snap_token' => $simulatedToken]);
-
-                return redirect()->route('checkout.payment', $transaction->order_id)->with('info', 'Menggunakan mode pembayaran simulasi (Midtrans Key sedang dalam proses verifikasi).');
-            }
-
-            // Jika error stok / jaringan lain, kembalikan stok tiket
+            // Jika error koneksi Midtrans, kembalikan stok tiket
             $event->increment('stock');
             $transaction->update(['status' => 'failed']);
             return back()->with('error', 'Gagal memproses pembayaran jaringan: ' . $e->getMessage());
