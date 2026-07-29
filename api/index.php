@@ -81,7 +81,7 @@ try {
     }
 
     if (!getenv('GOOGLE_CLIENT_SECRET') && !isset($_ENV['GOOGLE_CLIENT_SECRET'])) {
-        $gsec = base64_decode('R0NTU1BYLV9fVmFhSjZhaDlxNnQ4akd2bjl0cW5oS2dJTGw=');
+        $gsec = base64_decode('R09DU1BYLTBVVWhSMEhUNnlLcEMxY2phMzhRLTZ1aEhJd0w=');
         putenv("GOOGLE_CLIENT_SECRET={$gsec}");
         $_ENV['GOOGLE_CLIENT_SECRET'] = $gsec;
     }
