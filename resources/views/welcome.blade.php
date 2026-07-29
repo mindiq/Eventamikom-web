@@ -80,9 +80,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @php
                 $defaultImages = [
-                    'https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png',
+                    'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=80',
+                    'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&auto=format&fit=crop&q=80',
                     'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600&auto=format&fit=crop&q=80',
-                    'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=80'
+                    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80',
+                    'https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png'
                 ];
             @endphp
             @forelse($events as $item)
@@ -92,15 +94,14 @@
                 <div class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
                     <div>
                         <div class="relative overflow-hidden aspect-[3/4]">
-                            @if($item->poster_path)
-                                <img src="{{ \Illuminate\Support\Str::startsWith($item->poster_path, 'http') ? $item->poster_path : asset('storage/' . $item->poster_path) }}" 
+                            @if($item->poster_path && \Illuminate\Support\Str::startsWith($item->poster_path, 'http'))
+                                <img src="{{ $item->poster_path }}" 
                                      alt="{{ $item->title }}" 
-                                     onerror="this.onerror=null; this.src='https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png';"
+                                     onerror="this.onerror=null; this.src='{{ $fallbackImage }}';"
                                      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             @else
-                                <img src="{{ \Illuminate\Support\Str::startsWith($fallbackImage, 'http') ? $fallbackImage : asset($fallbackImage) }}" 
+                                <img src="{{ $fallbackImage }}" 
                                      alt="{{ $item->title }}" 
-                                     onerror="this.onerror=null; this.src='https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png';"
                                      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             @endif
 

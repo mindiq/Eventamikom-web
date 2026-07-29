@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
             \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(50)");
             \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role SET DEFAULT 'user'");
             \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role SET NOT NULL");
