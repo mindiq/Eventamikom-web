@@ -80,7 +80,7 @@
                         @foreach($events as $event)
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="py-4 px-4 flex items-center gap-3">
-                                    <img src="{{ ($event->poster_path && Storage::disk('public')->exists($event->poster_path)) ? asset('storage/' . $event->poster_path) : asset('assets/concert.png') }}" alt="Poster" class="w-12 h-12 rounded-xl object-cover">
+                                    <img src="{{ $event->poster_path ? (\Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path)) : asset('assets/concert.png') }}" alt="Poster" class="w-12 h-12 rounded-xl object-cover">
                                     <div>
                                         <p class="font-bold text-slate-800 line-clamp-1">{{ $event->title }}</p>
                                         <p class="text-xs text-slate-400">{{ $event->category->name ?? 'Umum' }}</p>

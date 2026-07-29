@@ -36,7 +36,7 @@
             <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
                 <h3 class="text-xl font-bold mb-6 border-b pb-4">Pesanan Anda</h3>
                 <div class="flex gap-6 items-start">
-                    <img src="assets/concert.png" alt="Event" class="w-24 h-24 rounded-2xl object-cover">
+                    <img src="{{ asset('assets/concert.png') }}" alt="Event" class="w-24 h-24 rounded-2xl object-cover">
                     <div>
                         <h4 class="font-extrabold text-lg">Jazz Night 2024: A Celebration</h4>
                         <p class="text-slate-500">16 Nov 2024 • The Blue Note Lounge</p>

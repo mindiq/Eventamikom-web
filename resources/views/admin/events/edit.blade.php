@@ -69,7 +69,7 @@
                 <div class="flex items-start gap-6 p-4 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
                     <div class="shrink-0 text-center">
                         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Poster Saat Ini</p>
-                        <img src="{{ asset('storage/'.$event->poster_path) }}" class="w-24 h-32 rounded-xl object-cover shadow-md border-2 border-white">
+                        <img src="{{ \Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/'.$event->poster_path) }}" class="w-24 h-32 rounded-xl object-cover shadow-md border-2 border-white">
                     </div>
                     <div class="flex-1">
                         <p class="text-xs text-slate-500 mb-3 leading-relaxed">Pilih file baru jika ingin mengganti poster. Kosongkan jika tidak ingin mengubah gambar.</p>

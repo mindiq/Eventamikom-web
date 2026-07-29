@@ -30,8 +30,9 @@
             <div
                 class="absolute -bottom-10 -right-10 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000">
             </div>
-            <img src="assets/concert.png" alt="Concert"
-                class="rounded-[2rem] shadow-2xl relative z-10 w-full object-cover aspect-[4/5] object-center">
+            <img src="https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png" alt="Concert"
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&auto=format&fit=crop&q=80';"
+                 class="rounded-[2rem] shadow-2xl relative z-10 w-full object-cover aspect-[4/5] object-center">
 
             <div class="absolute -bottom-6 -left-6 glass p-6 rounded-2xl shadow-xl z-20 border border-white">
                 <div class="flex items-center gap-4">
@@ -78,7 +79,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @php
-                $defaultImages = ['assets/concert.png', 'assets/workshop.png', 'assets/hackathon.png'];
+                $defaultImages = [
+                    'https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png',
+                    'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600&auto=format&fit=crop&q=80',
+                    'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=80'
+                ];
             @endphp
             @forelse($events as $item)
                 @php
@@ -87,12 +92,16 @@
                 <div class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
                     <div>
                         <div class="relative overflow-hidden aspect-[3/4]">
-                            @if($item->poster_path && file_exists(public_path('storage/' . $item->poster_path)))
-                                <img src="{{ asset('storage/' . $item->poster_path) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            @elseif($item->poster_path && file_exists(public_path($item->poster_path)))
-                                <img src="{{ asset($item->poster_path) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            @if($item->poster_path)
+                                <img src="{{ \Illuminate\Support\Str::startsWith($item->poster_path, 'http') ? $item->poster_path : asset('storage/' . $item->poster_path) }}" 
+                                     alt="{{ $item->title }}" 
+                                     onerror="this.onerror=null; this.src='https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png';"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             @else
-                                <img src="{{ asset($fallbackImage) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                <img src="{{ \Illuminate\Support\Str::startsWith($fallbackImage, 'http') ? $fallbackImage : asset($fallbackImage) }}" 
+                                     alt="{{ $item->title }}" 
+                                     onerror="this.onerror=null; this.src='https://res.cloudinary.com/omojhwbn/image/upload/v1785315287/hack_zfwqh4.png';"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             @endif
 
                             <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-xs font-bold uppercase text-indigo-600">

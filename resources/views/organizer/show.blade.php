@@ -202,7 +202,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @foreach($events as $event)
                         <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-lg transition">
-                            <img src="{{ ($event->poster_path && Storage::disk('public')->exists($event->poster_path)) ? asset('storage/' . $event->poster_path) : asset('assets/concert.png') }}" alt="Poster" class="w-full h-40 object-cover rounded-2xl mb-4">
+                            <img src="{{ $event->poster_path ? (\Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path)) : asset('assets/concert.png') }}" alt="Poster" class="w-full h-40 object-cover rounded-2xl mb-4">
                             <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase">{{ $event->category->name ?? 'Music' }}</span>
                             <h4 class="font-bold text-lg text-slate-800 mt-2 line-clamp-1">{{ $event->title }}</h4>
                             <p class="text-xs text-slate-500 mt-1">Rp {{ number_format($event->price, 0, ',', '.') }}</p>

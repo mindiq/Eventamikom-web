@@ -82,7 +82,17 @@ class EventController extends Controller
         }
 
         if ($request->hasFile('poster')) {
-            $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+            if (env('CLOUDINARY_URL')) {
+                try {
+                    $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+                    $uploadResult = $cloudinary->uploadApi()->upload($request->file('poster')->getRealPath());
+                    $data['poster_path'] = $uploadResult['secure_url'];
+                } catch (\Exception $e) {
+                    $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+                }
+            } else {
+                $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+            }
         }
 
         Event::create($data);
@@ -113,10 +123,21 @@ class EventController extends Controller
         ]);
 
         if ($request->hasFile('poster')) {
-            if ($event->poster_path) {
+            if ($event->poster_path && !\Illuminate\Support\Str::startsWith($event->poster_path, 'http')) {
                 Storage::disk('public')->delete($event->poster_path);
             }
-            $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+
+            if (env('CLOUDINARY_URL')) {
+                try {
+                    $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+                    $uploadResult = $cloudinary->uploadApi()->upload($request->file('poster')->getRealPath());
+                    $data['poster_path'] = $uploadResult['secure_url'];
+                } catch (\Exception $e) {
+                    $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+                }
+            } else {
+                $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+            }
         }
 
         $event->update($data);
@@ -127,7 +148,7 @@ class EventController extends Controller
     {
         $this->checkOwnership($event);
 
-        if ($event->poster_path) {
+        if ($event->poster_path && !\Illuminate\Support\Str::startsWith($event->poster_path, 'http')) {
             Storage::disk('public')->delete($event->poster_path);
         }
         $event->delete();
