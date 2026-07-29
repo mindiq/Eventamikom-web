@@ -58,7 +58,7 @@
 @endphp
 <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ $clientKey }}"></script>
 <script type="text/javascript">
-    document.getElementById('pay-button').onclick = function () {
+    function openSnapPopup() {
         const token = '{{ $transaction->snap_token }}';
         if (typeof snap !== 'undefined' && snap.pay && token && !token.startsWith('SNAP-') && !token.startsWith('DUMMY-')) {
             snap.pay(token, {
@@ -70,12 +70,21 @@
                 },
                 onError: function(result){
                     window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                },
+                onClose: function(){
+                    // Biarkan user berada di halaman jika ditutup
                 }
             });
         } else {
-            // Jika token simulasi/fallback, langsung konfirmasi pelunasan
             window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
         }
+    }
+
+    document.getElementById('pay-button').onclick = openSnapPopup;
+
+    // Otomatis munculkan Pop-up Midtrans Snap saat halaman dibuka (persis seperti demo)
+    window.onload = function() {
+        setTimeout(openSnapPopup, 300);
     };
 </script>
 @endsection
