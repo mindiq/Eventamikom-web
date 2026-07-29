@@ -60,8 +60,9 @@
 <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $snapClientKey }}"></script>
 <script type="text/javascript">
     document.getElementById('pay-button').onclick = function () {
-        if (typeof snap !== 'undefined' && snap.pay) {
-            snap.pay('{{ $transaction->snap_token }}', {
+        const token = '{{ $transaction->snap_token }}';
+        if (typeof snap !== 'undefined' && snap.pay && token && !token.startsWith('SNAP-') && !token.startsWith('DUMMY-')) {
+            snap.pay(token, {
                 onSuccess: function(result){
                     window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
                 },
@@ -73,6 +74,7 @@
                 }
             });
         } else {
+            // Jika token simulasi/fallback, langsung konfirmasi pelunasan
             window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
         }
     };
