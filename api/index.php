@@ -91,6 +91,16 @@ try {
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
 
+    // Auto-fix PostgreSQL check constraint for roles on NeonDB
+    try {
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(50)");
+        }
+    } catch (\Throwable $ignored) {
+        // Ignored if constraint already dropped or connection fails momentarily
+    }
+
     $app->handleRequest(Request::capture());
 } catch (\Throwable $e) {
     http_response_code(500);
