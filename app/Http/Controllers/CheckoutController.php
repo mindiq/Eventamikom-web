@@ -92,15 +92,16 @@ class CheckoutController extends Controller
         }
 
         // --- INTEGRASI SNAP MIDTRANS ---
-        $serverKey = env('MIDTRANS_SERVER_KEY') ?: 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4';
-        if (!\Illuminate\Support\Str::startsWith($serverKey, 'SB-') && !\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
-            $serverKey = 'SB-' . $serverKey;
-        } else if (\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
-            $serverKey = 'SB-' . $serverKey;
+        $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
+        $isProd = filter_var(env('MIDTRANS_IS_PRODUCTION', true), FILTER_VALIDATE_BOOLEAN);
+
+        // Jika key diawali Mid-server- (bukan SB-), berarti akun Production Midtrans
+        if (\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
+            $isProd = true;
         }
-        $sKeyEncoded = base64_encode($serverKey);
-        \Midtrans\Config::$serverKey = base64_decode($sKeyEncoded);
-        \Midtrans\Config::$isProduction = false;
+
+        \Midtrans\Config::$serverKey = $serverKey;
+        \Midtrans\Config::$isProduction = $isProd;
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
 
