@@ -61,14 +61,14 @@ try {
     }
 
     if (!getenv('MIDTRANS_SERVER_KEY') && !isset($_ENV['MIDTRANS_SERVER_KEY'])) {
-        $mKey = base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA==');
-        $mClient = base64_decode('TWlkLWNsaWVudC1YQVVLUTBvaElKbTlTNEpN');
+        $mKey = 'SB-' . base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA==');
+        $mClient = 'SB-' . base64_decode('TWlkLWNsaWVudC1YQVVLUTBvaElKbTlTNEpN');
         putenv("MIDTRANS_SERVER_KEY={$mKey}");
         $_ENV['MIDTRANS_SERVER_KEY'] = $mKey;
         putenv("MIDTRANS_CLIENT_KEY={$mClient}");
         $_ENV['MIDTRANS_CLIENT_KEY'] = $mClient;
-        putenv('MIDTRANS_IS_PRODUCTION=true');
-        $_ENV['MIDTRANS_IS_PRODUCTION'] = 'true';
+        putenv('MIDTRANS_IS_PRODUCTION=false');
+        $_ENV['MIDTRANS_IS_PRODUCTION'] = 'false';
     }
 
     if (!getenv('GOOGLE_CLIENT_ID') && !isset($_ENV['GOOGLE_CLIENT_ID'])) {
