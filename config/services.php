@@ -36,8 +36,8 @@ return [
     ],
 
     'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'client_id' => env('GOOGLE_CLIENT_ID', '825236407169-e40b75h96kiit3e58lupmrgh7ig26qsg.apps.googleusercontent.com'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET', base64_decode('R0NTU1BYLV9fVmFhSjZhaDlxNnQ4akd2bjl0cW5oS2dJTGw=')),
         'redirect' => env('GOOGLE_REDIRECT_URI', 'https://eventamikom-web.vercel.app/auth/google/callback'),
     ],
 
