@@ -20,7 +20,7 @@ class SocialiteController extends Controller
         } else if (url()->previous() && !str_contains(url()->previous(), 'login')) {
             session(['url.intended' => url()->previous()]);
         }
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     /**
@@ -29,7 +29,7 @@ class SocialiteController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
             // Cari user berdasarkan google_id atau email
             $user = User::where('google_id', $googleUser->getId())
