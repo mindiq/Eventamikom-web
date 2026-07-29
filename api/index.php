@@ -86,11 +86,8 @@ try {
         $_ENV['GOOGLE_CLIENT_SECRET'] = $gsec;
     }
 
-    // Dynamic GOOGLE_REDIRECT_URI based on request host
-    $host = $_SERVER['HTTP_HOST'] ?? 'eventamikom-web.vercel.app';
-    $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'http';
-    $redirectUri = "{$scheme}://{$host}/auth/google/callback";
-
+    // Static GOOGLE_REDIRECT_URI matching exact authorized URI in Google Cloud Console
+    $redirectUri = 'https://eventamikom-web.vercel.app/auth/google/callback';
     putenv("GOOGLE_REDIRECT_URI={$redirectUri}");
     $_ENV['GOOGLE_REDIRECT_URI'] = $redirectUri;
 
