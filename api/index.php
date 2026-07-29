@@ -60,6 +60,11 @@ try {
         $_ENV['APP_KEY'] = 'base64:C0PUHAv+7Hdc1GRUL8gkB357PfI1xMof8uqzG0PLIXM=';
     }
 
+    if (!getenv('GOOGLE_REDIRECT_URI') && !isset($_ENV['GOOGLE_REDIRECT_URI'])) {
+        putenv('GOOGLE_REDIRECT_URI=https://eventamikom-web.vercel.app/auth/google/callback');
+        $_ENV['GOOGLE_REDIRECT_URI'] = 'https://eventamikom-web.vercel.app/auth/google/callback';
+    }
+
     if (!getenv('DB_CONNECTION') && !isset($_ENV['DB_CONNECTION'])) {
         putenv('DB_CONNECTION=pgsql');
         putenv('DB_HOST=ep-green-credit-az9nn8gq.c-3.ap-southeast-1.aws.neon.tech');
