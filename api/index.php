@@ -60,6 +60,12 @@ try {
         $_ENV['APP_KEY'] = 'base64:C0PUHAv+7Hdc1GRUL8gkB357PfI1xMof8uqzG0PLIXM=';
     }
 
+    if (!getenv('GOOGLE_CLIENT_ID') && !isset($_ENV['GOOGLE_CLIENT_ID'])) {
+        $gid = '825236407169-e40b75h96kiit3e58lupmrgh7ig26qsg.apps.googleusercontent.com';
+        putenv("GOOGLE_CLIENT_ID={$gid}");
+        $_ENV['GOOGLE_CLIENT_ID'] = $gid;
+    }
+
     if (!getenv('GOOGLE_REDIRECT_URI') && !isset($_ENV['GOOGLE_REDIRECT_URI'])) {
         putenv('GOOGLE_REDIRECT_URI=https://eventamikom-web.vercel.app/auth/google/callback');
         $_ENV['GOOGLE_REDIRECT_URI'] = 'https://eventamikom-web.vercel.app/auth/google/callback';
