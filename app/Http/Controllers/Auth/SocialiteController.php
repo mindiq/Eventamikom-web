@@ -58,7 +58,8 @@ class SocialiteController extends Controller
 
             return redirect()->intended(route('home'))->with('success', 'Selamat datang, ' . $user->name . '! Anda berhasil login via Google.');
         } catch (Exception $e) {
-            return redirect()->route('home')->with('error', 'Gagal melakukan login via Google: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Google Auth Error: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->route('home')->with('error', 'Gagal login via Google: ' . $e->getMessage());
         }
     }
 }
