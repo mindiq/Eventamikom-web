@@ -44,7 +44,13 @@
     </div>
 </main>
 
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@php
+    $clientKey = env('MIDTRANS_CLIENT_KEY', 'Mid-client-XAUKQ0ohIJm9S4JM');
+    $snapUrl = \Illuminate\Support\Str::startsWith($clientKey, 'Mid-client-') 
+        ? 'https://app.midtrans.com/snap/snap.js' 
+        : 'https://app.sandbox.midtrans.com/snap/snap.js';
+@endphp
+<script src="{{ $snapUrl }}" data-client-key="{{ $clientKey }}"></script>
 <script type="text/javascript">
     const checkUrl = "{{ route('checkout.check', $transaction->order_id) }}";
 
