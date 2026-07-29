@@ -125,9 +125,9 @@ class CheckoutController extends Controller
 
             return redirect()->route('checkout.payment', $transaction->order_id);
         } catch (\Exception $e) {
-            // Backup jika token gagal, arahkan ke modul pembayaran
-            $transaction->update(['snap_token' => 'SNAP-' . time()]);
-            return redirect()->route('checkout.payment', $transaction->order_id);
+            $event->increment('stock');
+            $transaction->update(['status' => 'failed']);
+            return back()->with('error', 'Gagal membuat sesi Midtrans: ' . $e->getMessage());
         }
     }
 
