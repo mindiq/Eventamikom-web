@@ -92,8 +92,14 @@ class CheckoutController extends Controller
         }
 
         // --- INTEGRASI SNAP MIDTRANS ---
-        $serverKey = env('MIDTRANS_SERVER_KEY') ?: base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA==');
-        \Midtrans\Config::$serverKey = $serverKey;
+        $serverKey = env('MIDTRANS_SERVER_KEY') ?: 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4';
+        if (!\Illuminate\Support\Str::startsWith($serverKey, 'SB-') && !\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
+            $serverKey = 'SB-' . $serverKey;
+        } else if (\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
+            $serverKey = 'SB-' . $serverKey;
+        }
+        $sKeyEncoded = base64_encode($serverKey);
+        \Midtrans\Config::$serverKey = base64_decode($sKeyEncoded);
         \Midtrans\Config::$isProduction = false;
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
