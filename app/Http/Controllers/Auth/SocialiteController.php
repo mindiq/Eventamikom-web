@@ -29,7 +29,12 @@ class SocialiteController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            // Ambil data user Google menggunakan mode stateless untuk kompatibilitas Vercel Serverless
             $googleUser = Socialite::driver('google')->stateless()->user();
+
+            if (!$googleUser || !$googleUser->getEmail()) {
+                return redirect()->route('home')->with('error', 'Gagal mengambil informasi profil dari akun Google Anda.');
+            }
 
             // Cari user berdasarkan google_id atau email
             $user = User::where('google_id', $googleUser->getId())
@@ -50,7 +55,7 @@ class SocialiteController extends Controller
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'role' => 'user',
-                    'password' => null, // Tanpa password karena via SSO
+                    'password' => bcrypt(\Illuminate\Support\Str::random(16)), // Password acak aman
                 ]);
             }
 
