@@ -92,13 +92,12 @@ class CheckoutController extends Controller
         }
 
         // --- INTEGRASI SNAP MIDTRANS ---
-        $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
-        $isProd = filter_var(env('MIDTRANS_IS_PRODUCTION', true), FILTER_VALIDATE_BOOLEAN);
-
-        // Jika key diawali Mid-server- (bukan SB-), berarti akun Production Midtrans
-        if (\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
-            $isProd = true;
+        $serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4');
+        if (!\Illuminate\Support\Str::startsWith($serverKey, 'SB-') && !\Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-')) {
+            $serverKey = 'SB-' . $serverKey;
         }
+
+        $isProd = \Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-') && !\Illuminate\Support\Str::startsWith($serverKey, 'SB-Mid-server-');
 
         \Midtrans\Config::$serverKey = $serverKey;
         \Midtrans\Config::$isProduction = $isProd;
@@ -110,7 +109,7 @@ class CheckoutController extends Controller
                 'order_id' => $transaction->order_id,
                 'gross_amount' => $transaction->total_price,
             ],
-            'enabled_payments' => ['gopay', 'qris', 'bank_transfer', 'bca_va', 'bni_va', 'bri_va', 'mandiri_va', 'shopeepay', 'cbm'],
+            'enabled_payments' => ['gopay', 'qris', 'bank_transfer', 'bca_va', 'bni_va', 'bri_va', 'mandiri_va', 'shopeepay'],
             'expiry' => [
                 'start_time' => date("Y-m-d H:i:s O"),
                 'unit' => 'minute',
@@ -129,26 +128,19 @@ class CheckoutController extends Controller
 
             return redirect()->route('checkout.payment', $transaction->order_id);
         } catch (\Exception $e) {
-            // Jika akun Production menolak (401), coba otomatis dengan mode Sandbox
-            if (str_contains($e->getMessage(), '401') || str_contains($e->getMessage(), 'unauthorized')) {
-                try {
-                    \Midtrans\Config::$serverKey = 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4';
-                    \Midtrans\Config::$isProduction = false;
-                    $snapToken = \Midtrans\Snap::getSnapToken($params);
-                    $transaction->update(['snap_token' => $snapToken]);
+            // Jika Production gagal, otomatis coba Sandbox Key
+            try {
+                \Midtrans\Config::$serverKey = 'SB-Mid-server-e48wZ6KLrZlk8HVkmOXEx4_4';
+                \Midtrans\Config::$isProduction = false;
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+                $transaction->update(['snap_token' => $snapToken]);
 
-                    return redirect()->route('checkout.payment', $transaction->order_id);
-                } catch (\Exception $e2) {
-                    // Jika tetap gagal, buatkan token pembayaran langsung tanpa error
-                    $transaction->update(['snap_token' => 'SNAP-' . time() . '-' . Str::random(8)]);
-                    return redirect()->route('checkout.payment', $transaction->order_id);
-                }
+                return redirect()->route('checkout.payment', $transaction->order_id);
+            } catch (\Exception $e2) {
+                $event->increment('stock');
+                $transaction->update(['status' => 'failed']);
+                return back()->with('error', 'Gagal membuat sesi pembayaran Midtrans: ' . $e2->getMessage());
             }
-
-            // Jika error stok / jaringan lain, kembalikan stok tiket
-            $event->increment('stock');
-            $transaction->update(['status' => 'failed']);
-            return back()->with('error', 'Gagal memproses pembayaran jaringan: ' . $e->getMessage());
         }
     }
 
