@@ -213,7 +213,38 @@
     </div>
 </div>
 
+@php
+    $clientKey = env('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-1A2B3C4D5E6F7G8H');
+    if (!\Illuminate\Support\Str::startsWith($clientKey, 'SB-')) {
+        $clientKey = 'SB-' . $clientKey;
+    }
+@endphp
+<!-- OFFICIAL MIDTRANS SNAP JS SDK (SANDBOX) -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $clientKey }}"></script>
+
 <script type="text/javascript">
+    function triggerOfficialSnapPay() {
+        const snapToken = '{{ $transaction->snap_token }}';
+        if (typeof snap !== 'undefined' && snap.pay && snapToken && !snapToken.startsWith('MIDTRANS-') && !snapToken.startsWith('DUMMY-')) {
+            snap.pay(snapToken, {
+                onSuccess: function(result) {
+                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                },
+                onPending: function(result) {
+                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                },
+                onError: function(result) {
+                    showCustomSnapModal();
+                },
+                onClose: function() {
+                    showCustomSnapModal();
+                }
+            });
+        } else {
+            showCustomSnapModal();
+        }
+    }
+
     function showCustomSnapModal() {
         document.getElementById('snap-modal-overlay').classList.remove('hidden');
         document.getElementById('snap-view-methods').classList.remove('hidden');
@@ -267,9 +298,9 @@
     setInterval(updateCountdownTimer, 1000);
     updateCountdownTimer();
 
-    // Auto open modal on page load exactly like demo
+    // Auto trigger official Midtrans snap pay or custom modal
     window.onload = function() {
-        setTimeout(showCustomSnapModal, 200);
+        setTimeout(triggerOfficialSnapPay, 300);
     };
 </script>
 @endsection
