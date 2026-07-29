@@ -220,6 +220,36 @@
         alert("Detail Tagihan Tiket #{{ $transaction->order_id }}: Total Rp {{ number_format($transaction->total_price, 0, ',', '.') }}");
     }
 
+    // 15-MINUTES REALTIME COUNTDOWN TIMER & STOCK RESTORATION
+    const createdAtTime = new Date("{{ $transaction->created_at->toIso8601String() }}").getTime();
+    const expireTime = createdAtTime + (15 * 60 * 1000);
+
+    function updateCountdownTimer() {
+        const now = new Date().getTime();
+        const distance = expireTime - now;
+
+        if (distance <= 0) {
+            document.getElementById('snap-timer').innerText = "00:00:00";
+            alert("⏰ Waktu pembayaran 15 menit telah habis! Transaksi dibatalkan dan stok tiket dikembalikan.");
+            window.location.href = "{{ route('home') }}";
+            return;
+        }
+
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const hStr = hours.toString().padStart(2, '0');
+        const mStr = minutes.toString().padStart(2, '0');
+        const sStr = seconds.toString().padStart(2, '0');
+
+        document.getElementById('snap-timer').innerText = `${hStr}:${mStr}:${sStr}`;
+    }
+
+    // Jalankan timer setiap 1 detik secara real-time
+    setInterval(updateCountdownTimer, 1000);
+    updateCountdownTimer();
+
     // Auto open modal on page load exactly like demo
     window.onload = function() {
         setTimeout(showCustomSnapModal, 200);

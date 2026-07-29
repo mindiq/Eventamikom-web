@@ -168,6 +168,17 @@ class CheckoutController extends Controller
                 ->with('success', 'Transaksi ini sudah lunas.');
         }
 
+        // 1.5 VALIDASI EXPIRED (15 MENIT): Jika sudah lewat 15 menit dari dibuatnya transaksi
+        if ($transaction->status === 'expired' || $transaction->created_at->addMinutes(15)->isPast()) {
+            if ($transaction->status !== 'expired' && $transaction->status !== 'failed') {
+                $transaction->update(['status' => 'expired']);
+                if ($transaction->event) {
+                    $transaction->event->increment('stock');
+                }
+            }
+            return redirect()->route('home')->with('error', 'Waktu pembayaran 15 menit telah habis. Stok tiket telah dikembalikan.');
+        }
+
         // 2. VALIDASI LIVE KE MIDTRANS API: Cek apakah user baru saja membayar di simulator QRIS/Bank
         $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
         $snapServerKey = \Illuminate\Support\Str::startsWith($serverKey, 'SB-') ? $serverKey : 'SB-' . $serverKey;
