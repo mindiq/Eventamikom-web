@@ -63,7 +63,7 @@
 <script type="text/javascript">
     function openSnapPopup() {
         const token = '{{ $transaction->snap_token }}';
-        if (typeof snap !== 'undefined' && snap.pay && token && !token.startsWith('SNAP-') && !token.startsWith('DUMMY-')) {
+        if (typeof snap !== 'undefined' && snap.pay && token && !token.startsWith('SNAP-') && !token.startsWith('DUMMY-') && !token.startsWith('MIDTRANS-')) {
             snap.pay(token, {
                 onSuccess: function(result){
                     window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
