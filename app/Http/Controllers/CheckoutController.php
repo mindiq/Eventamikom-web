@@ -91,13 +91,21 @@ class CheckoutController extends Controller
             return back()->with('error', 'Gagal memproses reservasi tiket: ' . $e->getMessage());
         }
 
-        // --- INTEGRASI RESMI PRODUCTION MIDTRANS ---
-        $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
-        $clientKey = env('MIDTRANS_CLIENT_KEY', base64_decode('TWlkLWNsaWVudC1YQVVLUTBvaElKbTlTNEpN'));
+        // --- INTEGRASI RESMI MIDTRANS SANDBOX (UJI COBA) ---
+        $serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-9fX0k-qYlB_V4L9Z3X4Y5Z6A');
+        $clientKey = env('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-1A2B3C4D5E6F7G8H');
+
+        // Pastikan berawalan SB- untuk Sandbox
+        if (!\Illuminate\Support\Str::startsWith($serverKey, 'SB-')) {
+            $serverKey = 'SB-' . $serverKey;
+        }
+        if (!\Illuminate\Support\Str::startsWith($clientKey, 'SB-')) {
+            $clientKey = 'SB-' . $clientKey;
+        }
 
         \Midtrans\Config::$serverKey = $serverKey;
         \Midtrans\Config::$clientKey = $clientKey;
-        \Midtrans\Config::$isProduction = true; // Mode Production resmi Midtrans
+        \Midtrans\Config::$isProduction = false; // 100% Sandbox Uji Coba (Bukan Real)
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
 

@@ -54,9 +54,12 @@
 </main>
 
 @php
-    $clientKey = env('MIDTRANS_CLIENT_KEY', 'Mid-client-XAUKQ0ohIJm9S4JM');
+    $clientKey = env('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-1A2B3C4D5E6F7G8H');
+    if (!\Illuminate\Support\Str::startsWith($clientKey, 'SB-')) {
+        $clientKey = 'SB-' . $clientKey;
+    }
 @endphp
-<script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ $clientKey }}"></script>
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $clientKey }}"></script>
 <script type="text/javascript">
     function openSnapPopup() {
         const token = '{{ $transaction->snap_token }}';
