@@ -153,33 +153,50 @@
 
         </div>
 
-        <!-- VIEW 2: QRIS CODE DISPLAY (MATCHING SCREENSHOT 2) -->
+        <!-- VIEW 2: QRIS CODE DISPLAY (MATCHING SCREENSHOT 2 EXACTLY) -->
         <div id="snap-view-qris" class="hidden p-5 text-center space-y-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <span class="font-bold text-sm text-slate-900">GoPay QRIS</span>
-                <div class="flex items-center gap-1">
-                    <span class="px-1 bg-sky-100 text-sky-700 text-[8px] font-extrabold rounded">gopay</span>
-                    <span class="px-1 bg-red-100 text-red-700 text-[8px] font-extrabold rounded">QRIS</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="px-1.5 py-0.5 bg-sky-50 text-sky-600 font-extrabold text-[9px] rounded">gopay</span>
+                    <span class="px-1.5 py-0.5 bg-blue-50 text-blue-600 font-extrabold text-[9px] rounded">gopay later</span>
+                    <span class="px-1.5 py-0.5 bg-red-50 text-red-600 font-extrabold text-[9px] rounded">QRIS</span>
                 </div>
             </div>
 
-            <!-- QRIS IMAGE BOX -->
-            <div class="bg-white p-3 border-2 border-red-500 rounded-2xl inline-block shadow-inner relative">
-                <div class="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
-                    <span>QRIS</span>
-                    <span class="text-[7px] text-slate-400 font-normal">GPN</span>
+            <!-- OFFICIAL MIDTRANS GOPAY QRIS FRAME CARD -->
+            <div class="bg-white p-4 border border-slate-200 rounded-xl inline-block shadow-sm relative w-full max-w-[260px] mx-auto text-center">
+                <!-- TOP RED CORNER ACCENT & LOGOS -->
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-1">
+                        <span class="font-black text-red-600 text-xs">QRIS</span>
+                        <span class="text-[8px] font-bold text-slate-500 border-l border-slate-300 pl-1">QR Code Standar Pembayaran Nasional</span>
+                    </div>
+                    <span class="font-bold text-red-600 text-[10px]">GPN</span>
                 </div>
-                <p class="text-[10px] font-bold text-slate-700 mb-1">Hafidh Irfan</p>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://eventamikom-web.vercel.app/checkout/{{ $transaction->order_id }}/success" 
-                     alt="Scan QRIS Pembayaran" 
-                     class="w-44 h-44 mx-auto object-contain">
-                <p class="text-[9px] text-slate-400 mt-1">Dicetak oleh: GoPay</p>
+
+                <p class="text-xs font-black text-slate-900 mb-2">Hafidh Irfan</p>
+
+                <!-- DYNAMIC QR CODE WITH RED CORNER BRACKETS -->
+                <div class="relative p-2 bg-white inline-block border border-slate-100 rounded-lg">
+                    <!-- Top Left Corner -->
+                    <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-red-600"></div>
+                    <!-- Bottom Right Corner -->
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-red-600"></div>
+
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://eventamikom-web.vercel.app/checkout/{{ $transaction->order_id }}/success" 
+                         alt="Scan QRIS Pembayaran Midtrans" 
+                         class="w-40 h-40 mx-auto object-contain">
+                </div>
+
+                <p class="text-[10px] text-slate-400 font-medium mt-2">Dicetak oleh: GoPay</p>
             </div>
 
-            <div class="text-[11px] text-slate-500 font-medium">
-                <a href="#" class="text-indigo-600 font-semibold hover:underline flex items-center justify-center gap-1">
+            <div class="text-[11px] text-slate-500 font-medium pt-1">
+                <button type="button" class="text-indigo-600 font-semibold hover:underline flex items-center justify-center gap-1 mx-auto">
                     <span>ℹ️ How to pay</span>
-                </a>
+                    <span class="text-[9px]">s</span>
+                </button>
             </div>
 
             <!-- BUTTONS MATCHING SCREENSHOT 2 -->
