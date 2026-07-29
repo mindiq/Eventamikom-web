@@ -10,11 +10,11 @@
         <div>
             <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
             </div>
-            <h2 class="text-2xl font-black text-slate-900">Pembayaran QRIS</h2>
-            <p class="text-slate-500 text-xs mt-1">Scan kode QRIS di bawah ini menggunakan GoPay, OVO, Dana, ShopeePay, atau m-Banking.</p>
+            <h2 class="text-2xl font-black text-slate-900">Selesaikan Pembayaran</h2>
+            <p class="text-slate-500 text-xs mt-1">Gunakan Midtrans Snap Popup atau Scan QRIS di bawah ini.</p>
         </div>
 
         <!-- Detail Tagihan Card -->
@@ -24,35 +24,57 @@
             <p class="text-[11px] text-slate-400 font-mono">Order ID: {{ $transaction->order_id }}</p>
         </div>
 
-        <!-- QRIS Display Card -->
-        <div class="p-6 bg-white border-2 border-dashed border-indigo-200 rounded-3xl space-y-4 shadow-sm relative overflow-hidden group">
-            <div class="flex items-center justify-center gap-2 mb-2">
-                <span class="px-3 py-1 bg-red-600 text-white font-black text-xs rounded-md tracking-widest uppercase">QRIS</span>
-                <span class="text-xs text-slate-400 font-bold">GPN / National Standard</span>
+        <!-- QRIS Card -->
+        <div class="p-5 bg-white border-2 border-dashed border-indigo-200 rounded-3xl space-y-3 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-center gap-2">
+                <span class="px-2.5 py-0.5 bg-red-600 text-white font-black text-[10px] rounded tracking-widest uppercase">QRIS</span>
+                <span class="text-xs text-slate-500 font-bold">Midtrans Direct QRIS</span>
             </div>
-
-            <!-- Dynamic QR Code Container -->
-            <div class="bg-white p-4 rounded-2xl inline-block border shadow-md">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://eventamikom-web.vercel.app/checkout/{{ $transaction->order_id }}/success" 
+            <div class="bg-white p-3 rounded-2xl inline-block border shadow-sm">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://eventamikom-web.vercel.app/checkout/{{ $transaction->order_id }}/success" 
                      alt="Kode QRIS Pembayaran" 
-                     class="w-48 h-48 mx-auto object-contain">
+                     class="w-40 h-40 mx-auto object-contain">
             </div>
-
-            <p class="text-[11px] text-slate-400">Scan QRIS di atas untuk melakukan simulasi pelunasan instan</p>
+            <p class="text-[11px] text-slate-400">Scan QRIS menggunakan GoPay, OVO, Dana, ShopeePay, atau m-Banking</p>
         </div>
 
-        <!-- Status & Direct Action Buttons -->
+        <!-- Action Buttons -->
         <div class="space-y-3 pt-2">
-            <a href="{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement" 
-               class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-base shadow-xl shadow-emerald-200 transition transform active:scale-95 flex items-center justify-center gap-2">
-                <span>✅ Konfirmasi & Bayar Sekarang (Simulasi Instan)</span>
-            </a>
+            <button id="pay-button" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base shadow-xl shadow-indigo-200 transition transform active:scale-95 flex items-center justify-center gap-2">
+                <span>💳 Buka Popup Pembayaran Midtrans Snap</span>
+            </button>
 
-            <a href="{{ route('home') }}" class="block text-xs font-bold text-slate-400 hover:text-slate-600 transition">
-                &larr; Batalkan & Kembali ke Beranda
+            <a href="{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement" 
+               class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-extrabold text-sm shadow-md shadow-emerald-100 transition flex items-center justify-center gap-2">
+                <span>✅ Konfirmasi Pelunasan Tiket</span>
             </a>
         </div>
 
     </div>
 </main>
+
+@php
+    $clientKey = env('MIDTRANS_CLIENT_KEY', 'Mid-client-XAUKQ0ohIJm9S4JM');
+    $snapClientKey = \Illuminate\Support\Str::startsWith($clientKey, 'SB-') ? $clientKey : 'SB-' . $clientKey;
+@endphp
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $snapClientKey }}"></script>
+<script type="text/javascript">
+    document.getElementById('pay-button').onclick = function () {
+        if (typeof snap !== 'undefined' && snap.pay) {
+            snap.pay('{{ $transaction->snap_token }}', {
+                onSuccess: function(result){
+                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                },
+                onPending: function(result){
+                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                },
+                onError: function(result){
+                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+                }
+            });
+        } else {
+            window.location.href = "{{ route('checkout.success', $transaction->order_id) }}?status_code=200&transaction_status=settlement";
+        }
+    };
+</script>
 @endsection

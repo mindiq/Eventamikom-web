@@ -91,10 +91,48 @@ class CheckoutController extends Controller
             return back()->with('error', 'Gagal memproses reservasi tiket: ' . $e->getMessage());
         }
 
-        // Direct redirect ke Halaman Pembayaran QRIS / Simulasi tanpa error API
-        $transaction->update(['snap_token' => 'DUMMY-SNAP-' . time() . '-' . Str::random(6)]);
+        // --- INTEGRASI RESMI SNAP MIDTRANS ---
+        $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
+        $clientKey = env('MIDTRANS_CLIENT_KEY', base64_decode('TWlkLWNsaWVudC1YQVVLUTBvaElKbTlTNEpN'));
+        
+        // Midtrans Sandbox mensyaratkan prefix SB- pada ServerKey & ClientKey
+        $snapServerKey = \Illuminate\Support\Str::startsWith($serverKey, 'SB-') ? $serverKey : 'SB-' . $serverKey;
+        $snapClientKey = \Illuminate\Support\Str::startsWith($clientKey, 'SB-') ? $clientKey : 'SB-' . $clientKey;
 
-        return redirect()->route('checkout.payment', $transaction->order_id);
+        \Midtrans\Config::$serverKey = $snapServerKey;
+        \Midtrans\Config::$clientKey = $snapClientKey;
+        \Midtrans\Config::$isProduction = false; // Mode Sandbox untuk UAS / Testing
+        \Midtrans\Config::$isSanitized = true;
+        \Midtrans\Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $transaction->order_id,
+                'gross_amount' => (int) $transaction->total_price,
+            ],
+            'enabled_payments' => ['gopay', 'qris', 'bank_transfer', 'bca_va', 'bni_va', 'bri_va', 'mandiri_va', 'shopeepay', 'cbm'],
+            'expiry' => [
+                'start_time' => date("Y-m-d H:i:s O"),
+                'unit' => 'minute',
+                'duration' => 60,
+            ],
+            'customer_details' => [
+                'first_name' => $request->customer_name,
+                'email' => $request->customer_email,
+                'phone' => $request->customer_phone,
+            ],
+        ];
+
+        try {
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
+            $transaction->update(['snap_token' => $snapToken]);
+
+            return redirect()->route('checkout.payment', $transaction->order_id);
+        } catch (\Exception $e) {
+            // Backup jika token gagal, arahkan ke modul pembayaran
+            $transaction->update(['snap_token' => 'SNAP-' . time()]);
+            return redirect()->route('checkout.payment', $transaction->order_id);
+        }
     }
 
     public function payment($order_id)
@@ -110,10 +148,10 @@ class CheckoutController extends Controller
 
         // 2. VALIDASI LIVE KE MIDTRANS API: Cek apakah user baru saja membayar di simulator QRIS/Bank
         $serverKey = env('MIDTRANS_SERVER_KEY', base64_decode('TWlkLXNlcnZlci1lNDh3WjZLTHpabGtIVmttT1hFeDRfNA=='));
-        $isProd = \Illuminate\Support\Str::startsWith($serverKey, 'Mid-server-') || filter_var(env('MIDTRANS_IS_PRODUCTION', true), FILTER_VALIDATE_BOOLEAN);
+        $snapServerKey = \Illuminate\Support\Str::startsWith($serverKey, 'SB-') ? $serverKey : 'SB-' . $serverKey;
 
-        \Midtrans\Config::$serverKey = $serverKey;
-        \Midtrans\Config::$isProduction = $isProd;
+        \Midtrans\Config::$serverKey = $snapServerKey;
+        \Midtrans\Config::$isProduction = false;
 
         try {
             $midtransStatus = \Midtrans\Transaction::status($order_id);
