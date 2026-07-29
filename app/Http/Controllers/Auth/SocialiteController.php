@@ -15,6 +15,11 @@ class SocialiteController extends Controller
      */
     public function redirectToGoogle()
     {
+        if (request()->has('redirect')) {
+            session(['url.intended' => request()->get('redirect')]);
+        } else if (url()->previous() && !str_contains(url()->previous(), 'login')) {
+            session(['url.intended' => url()->previous()]);
+        }
         return Socialite::driver('google')->redirect();
     }
 
@@ -53,7 +58,7 @@ class SocialiteController extends Controller
 
             return redirect()->intended(route('home'))->with('success', 'Selamat datang, ' . $user->name . '! Anda berhasil login via Google.');
         } catch (Exception $e) {
-            return redirect()->route('login')->with('error', 'Gagal melakukan login via Google: ' . $e->getMessage());
+            return redirect()->route('home')->with('error', 'Gagal melakukan login via Google: ' . $e->getMessage());
         }
     }
 }
